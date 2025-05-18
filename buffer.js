@@ -6,8 +6,8 @@ Because with Buffer.concat()
 
 class DynBuf {
 	constructor(size) {
-		mainBuf = Buffer.alloc(size);
-		length = this.mainBuf.length;
+		this.mainBuf = Buffer.alloc(size);
+		this.length = this.mainBuf.length;
 	}
 
 	pushBuf(data) {
@@ -24,8 +24,22 @@ class DynBuf {
 		data.copy(this.mainBuf, this.length, 0);
 		this.length = newLen;
 	}
+
+	popBuf(index) {
+		this.mainBuf.copyWithin(0, index, this.length);
+		this.length -= index;
+	}
+
+	cutMessage() {
+		const idx = this.mainBuf.subarray(0, this.length).indexOf("\n");
+		if (idx < 0) {
+			return null; //not message complete
+		}
+		//copy and pop the complete message
+		const msg = Buffer.from(this.mainBuf.subarray(0, idx + 1));
+		this.popBuf(idx + 1);
+		return msg;
+	}
 }
 
-export {
-	DynBuf
-}
+export default DynBuf;

@@ -1,5 +1,5 @@
-import * as net from "net";
-import { DynBuf } from "./buffer";
+import { createServer } from "net";
+import DynBuf from "./buffer.js";
 
 //wrapper for net.Socket
 const socketInit = (socket) => {
@@ -73,14 +73,25 @@ const serveClient = async (socket) => {
 	const conn = socketInit(socket);
 	const buf = new DynBuf(0)
 	while (true) {
-		const data = await socketRead(conn);
-		if (data.length == 0) {
-			console.log("end connection");
-			break;
+		const msg = buf.cutMessage();
+		if (!msg) {
+			const data = await socketRead(conn);
+			buf.pushBuf(data);
+			if (data.length == 0) {
+				console.log("end connection");
+				break;
+			}
+			continue;
 		}
-		console.log("data", data);
-		//rewrite the data got on the socket
-		await socketWrite(conn, data);
+
+		if (msg.equals(Buffer.from("quit\n"))) {
+			await socketWrite(conn, "Bye.\n");
+			socket.destroy();
+			return;
+		} else {
+			const reply = Buffer.concat([Buffer.from("Echo: "), msg]);
+			await socketWrite(conn, reply);
+		}
 	}
 }
 
@@ -96,7 +107,7 @@ const newConn = async (socket) => {
 };
 
 const socketListen = (host, port) => {
-	const server = net.createServer();
+	const server = createServer();
 	server.on("connection", newConn);
 	server.listen({ host, port });
 };

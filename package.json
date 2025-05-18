@@ -1,0 +1,20 @@
+{
+  "name": "web_server",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Just a fun project where I’m building a web server from scratch in Node.js to better understand how HTTP and WebSocket really work.",
+  "main": "buffer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AntoineMeunier52/web_server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AntoineMeunier52/web_server/issues"
+  },
+  "homepage": "https://github.com/AntoineMeunier52/web_server#readme"
+}
