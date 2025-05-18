@@ -1,4 +1,5 @@
 import * as net from "net";
+import { DynBuf } from "./buffer";
 
 //wrapper for net.Socket
 const socketInit = (socket) => {
@@ -68,9 +69,9 @@ const socketWrite = (conn, data) => {
 	});
 };
 
-
 const serveClient = async (socket) => {
 	const conn = socketInit(socket);
+	const buf = new DynBuf(0)
 	while (true) {
 		const data = await socketRead(conn);
 		if (data.length == 0) {
@@ -98,10 +99,6 @@ const socketListen = (host, port) => {
 	const server = net.createServer();
 	server.on("connection", newConn);
 	server.listen({ host, port });
-};
-
-const socketAccept = (listener) => {
-	return listener.accept
 };
 
 socketListen("127.0.0.1", 5100)
