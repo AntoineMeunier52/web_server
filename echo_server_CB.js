@@ -12,6 +12,7 @@ const newConn = (socket) => {
 		console.log("data: ", data);
 		socket.write(data);
 
+		//close connection if client send "q"
 		if (data.includes("q")) {
 			console.log("close socket");
 			socket.end(); //send flag FIN and close connection
@@ -19,7 +20,7 @@ const newConn = (socket) => {
 	});
 };
 
-let server = net.createServer();
+let server = net.createServer({ allowHalfOpen: true });
 //add the callback in runtime
 server.on("connection", newConn);
 //handle socket error
