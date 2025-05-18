@@ -8,6 +8,7 @@ class DynBuf {
 	constructor(size) {
 		this.mainBuf = Buffer.alloc(size);
 		this.length = this.mainBuf.length;
+		this.currIdx = 0; //track the current message to treshold the front pop
 	}
 
 	pushBuf(data) {
@@ -25,19 +26,23 @@ class DynBuf {
 		this.length = newLen;
 	}
 
-	popBuf(index) {
-		this.mainBuf.copyWithin(0, index, this.length);
-		this.length -= index;
+	popBuf() {
+		this.mainBuf.copyWithin(0, this.currIdx, this.length);
+		this.length -= this.currIdx;
+		this.currIdx = 0;
 	}
 
 	cutMessage() {
-		const idx = this.mainBuf.subarray(0, this.length).indexOf("\n");
+		const idx = this.mainBuf.subarray(this.currIdx, this.length).indexOf("\n");
 		if (idx < 0) {
 			return null; //not message complete
 		}
-		//copy and pop the complete message
-		const msg = Buffer.from(this.mainBuf.subarray(0, idx + 1));
-		this.popBuf(idx + 1);
+		//copy and pop message if remaining data is bigger than 1/3 of buffer
+		const msg = Buffer.from(this.mainBuf.subarray(this.currIdx, this.currIdx + idx + 1));  //return new message include "\n"
+		this.currIdx += idx + 1;
+		if (this.currIdx > this.length / 3) {
+			this.popBuf(idx + 1);
+		}
 		return msg;
 	}
 }
